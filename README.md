@@ -114,6 +114,4 @@ If things feel heavy, please talk to someone you trust or a qualified profession
  
 Issues and pull requests are welcome. For larger changes, please open an issue first to discuss what you would like to change.
  
-## License
- 
-Add a license of your choice, for example MIT.
+
