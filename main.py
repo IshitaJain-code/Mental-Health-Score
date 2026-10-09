@@ -46,7 +46,7 @@ class PredictionResponse(BaseModel):
 
 @app.get('/')
 def home():
-    return FileResponse("prediction_UI.html")
+    return FileResponse("index.html")
 
 @app.post('/predict', response_model=PredictionResponse)
 def predict(data : StudentData):
