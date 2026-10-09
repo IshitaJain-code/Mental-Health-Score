@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Horizon — Student wellness check-in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Bricolage+Grotesque:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg1:#dce8ff;--bg2:#f4e4ee;--fg:#16213b;--soft:#4f5b78;--card:rgba(255,255,255,.62);--line:rgba(22,33,59,.18);--accent:#e8643c;--accent-fg:#fff;--disp:'Fraunces',Georgia,serif;--body:'Bricolage Grotesque',system-ui,sans-serif}
+body[data-theme=night]{--bg1:#1b1d3f;--bg2:#4a3566;--fg:#f5efff;--soft:#c3bde0;--card:rgba(255,255,255,.08);--line:rgba(255,255,255,.22);--accent:#ffb454;--accent-fg:#1b1d3f}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:var(--body);color:var(--fg);background:linear-gradient(170deg,var(--bg1),var(--bg2));background-attachment:fixed;transition:color .6s;line-height:1.5}
+body::before{content:"";position:fixed;inset:0;background:linear-gradient(170deg,#1b1d3f,#4a3566);opacity:0;transition:opacity .8s;z-index:-1}
+body[data-theme=night]::before{opacity:1}
+.wrap{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:28px 24px 32px}
+header{display:flex;justify-content:space-between;align-items:center;font-weight:700;letter-spacing:-.02em}
+header small{font-weight:400;color:var(--soft)}
+.track{position:relative;height:2px;background:var(--line);margin:26px 0 8px;border-radius:2px}
+.track i{position:absolute;left:0;top:0;height:100%;background:var(--accent);width:0;transition:width .5s}
+.track b{position:absolute;top:-7px;width:16px;height:16px;border-radius:50%;background:var(--accent);margin-left:-8px;left:0;transition:left .5s;box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 25%,transparent)}
+.crumbs{display:flex;justify-content:space-between;font-size:.78rem;color:var(--soft);margin-bottom:6px}
+.crumbs span.on{color:var(--fg);font-weight:700}
+main{flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px 0}
+h1{font:600 clamp(2.2rem,6vw,3.6rem)/1.02 var(--disp);letter-spacing:-.03em;margin:0 0 10px}
+.sub{color:var(--soft);margin:0 0 28px;max-width:46ch}
+.step{display:none}.step.on{display:block;animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
+.q{margin:0 0 26px}
+.q>label,.q>.lab{display:block;font-weight:700;margin-bottom:10px}
+.q .hint{font-weight:400;color:var(--soft);font-size:.85rem;margin-left:6px}
+input[type=number],input[type=text]{width:100%;font:500 1.4rem var(--body);padding:10px 0;background:none;border:0;border-bottom:2px solid var(--line);color:var(--fg);border-radius:0;outline:none;transition:border-color .2s}
+input[type=number]:focus,input[type=text]:focus{border-color:var(--accent)}
+input::placeholder{color:var(--soft);opacity:.6}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:500 .95rem var(--body);padding:9px 16px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed=true]{background:var(--fg);color:var(--bg1);border-color:var(--fg)}
+body[data-theme=night] .chip[aria-pressed=true]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.slider{display:flex;align-items:center;gap:18px}
+.slider output{font:600 2rem var(--disp);min-width:4.2ch;text-align:right}
+.slider output small{font:400 .8rem var(--body);color:var(--soft);margin-left:3px}
+input[type=range]{flex:1;appearance:none;height:4px;border-radius:4px;background:var(--line);outline-offset:6px}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:26px;height:26px;border-radius:50%;background:var(--accent);border:4px solid var(--bg1);box-shadow:0 0 0 1px var(--accent);cursor:grab}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--accent);border:4px solid var(--bg1);cursor:grab}
+.stress{display:grid;gap:10px}
+.stress .chip{display:flex;justify-content:space-between;align-items:center;border-radius:16px;padding:16px 20px;font-size:1.05rem;text-align:left}
+.stress .chip em{font:italic 400 .95rem var(--disp);opacity:.75}
+.err{color:#c4372b;font-size:.85rem;font-weight:600;min-height:1.2em;margin-top:6px}
+body[data-theme=night] .err{color:#ff9a8c}
+nav{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.btn{font:700 1rem var(--body);border:0;border-radius:999px;padding:14px 28px;cursor:pointer;background:var(--accent);color:var(--accent-fg);transition:transform .15s,opacity .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn:disabled{opacity:.55;cursor:progress;transform:none}
+.btn.ghost{background:none;color:var(--fg);padding-left:4px}
+.btn.ghost[hidden]{display:block;visibility:hidden}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.scene{width:100%;max-width:560px;display:block;margin:0 auto 6px}
+.sun{transition:transform 1.6s cubic-bezier(.2,.9,.25,1)}
+.big{font:800 clamp(4rem,14vw,7rem)/1 var(--disp);letter-spacing:-.04em}
+.big small{font:400 1.2rem var(--body);color:var(--soft);letter-spacing:0;margin-left:6px}
+.band{font:600 1.5rem var(--disp);margin:6px 0 6px}
+.res{text-align:center}
+.res .sub{margin:0 auto 24px}
+.dots{display:flex;gap:8px;justify-content:center;margin:20px 0}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--accent);animation:b 1s infinite ease-in-out}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes b{50%{transform:translateY(-10px);opacity:.4}}
+footer{font-size:.78rem;color:var(--soft);text-align:center;margin-top:18px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body data-theme="day">
+<div class="wrap">
+  <header><span>◐ horizon</span><small>Private check-in · about 2 minutes</small></header>
+  <div id="progress">
+    <div class="track"><i id="bar"></i><b id="sunmark"></b></div>
+    <div class="crumbs" id="crumbs"></div>
+  </div>
+
+  <main>
+    <form id="predict-form" novalidate>
+      <section class="step" data-step="0">
+        <h1>Let's start with you.</h1>
+        <p class="sub">A few basics so the reflection fits your situation. There are no right answers.</p>
+        <div class="q"><label for="age">Age</label><input type="number" id="age" min="10" max="100" step="1" inputmode="numeric" placeholder="21"><div class="err" data-err="age"></div></div>
+        <div class="q"><span class="lab">Gender</span><div class="chips" data-key="gender" data-opts="Male,Female"></div><div class="err" data-err="gender"></div></div>
+        <div class="q"><label for="country">Country <span class="hint">type any country</span></label><input type="text" id="country" list="countries" placeholder="India" autocomplete="off"><datalist id="countries"><option>India<option>USA<option>Canada<option>Australia<option>UK<option>Germany<option>Mexico<option>Turkey<option>France</datalist><div class="err" data-err="country"></div></div>
+        <div class="q"><span class="lab">Academic level</span><div class="chips" data-key="academic_level" data-opts="High School,Undergraduate,Graduate"></div><div class="err" data-err="academic_level"></div></div>
+      </section>
+
+      <section class="step" data-step="1">
+        <h1>Now, your phone.</h1>
+        <p class="sub">Think of a typical day, not your best or worst one.</p>
+        <div class="q"><span class="lab">App you use most</span><div class="chips" data-key="most_used_platform" data-opts="Instagram,YouTube,WhatsApp,TikTok,Snapchat,Facebook,Twitter,LinkedIn,WeChat,LINE,KakaoTalk,VKontakte"></div><div class="err" data-err="most_used_platform"></div></div>
+        <div class="q"><span class="lab">Mostly used for</span><div class="chips" data-key="purpose_of_use" data-opts="Networking,Education,Entertainment,News"></div><div class="err" data-err="purpose_of_use"></div></div>
+        <div class="q"><label for="avg_daily_usage_hours">Daily screen time</label><div class="slider"><input type="range" id="avg_daily_usage_hours" min="0" max="16" step="0.5" value="4"><output for="avg_daily_usage_hours"></output></div></div>
+        <div class="q"><label for="daily_unlocks">Times you unlock your phone a day</label><input type="number" id="daily_unlocks" min="0" step="1" inputmode="numeric" placeholder="60"><div class="err" data-err="daily_unlocks"></div></div>
+      </section>
+
+      <section class="step" data-step="2">
+        <h1>How your days are spent.</h1>
+        <p class="sub">Slide to the number that feels closest to normal.</p>
+        <div class="q"><label for="sleep_hours_per_night">Sleep, per night</label><div class="slider"><input type="range" id="sleep_hours_per_night" min="0" max="14" step="0.5" value="7"><output for="sleep_hours_per_night"></output></div></div>
+        <div class="q"><label for="study_hours">Study time, per day</label><div class="slider"><input type="range" id="study_hours" min="0" max="16" step="0.5" value="3"><output for="study_hours"></output></div></div>
+        <div class="q"><label for="physical_activity_hours">Physical activity, per day</label><div class="slider"><input type="range" id="physical_activity_hours" min="0" max="6" step="0.25" value="1"><output for="physical_activity_hours"></output></div></div>
+      </section>
+
+      <section class="step" data-step="3">
+        <h1>Last one: how has stress felt lately?</h1>
+        <p class="sub">Pick the one that fits best.</p>
+        <div class="stress" data-key="stress_level" data-opts="Low|calm,Medium|present,High|heavy,Very High|overwhelming"></div>
+        <div class="err" data-err="stress_level"></div>
+      </section>
+
+      <section class="step res" data-step="loading">
+        <h1>Reading your day…</h1><div class="dots"><i></i><i></i><i></i></div>
+      </section>
+
+      <section class="step res" data-step="result" aria-live="polite">
+        <svg class="scene" viewBox="0 0 400 190" aria-hidden="true">
+          <defs><clipPath id="sky"><rect width="400" height="150"/></clipPath>
+          <radialGradient id="glow"><stop offset="0" stop-color="#ffb454" stop-opacity=".55"/><stop offset="1" stop-color="#ffb454" stop-opacity="0"/></radialGradient></defs>
+          <g clip-path="url(#sky)"><g class="sun" id="sun" style="transform:translateY(190px)"><circle cx="200" cy="130" r="70" fill="url(#glow)"/><circle cx="200" cy="130" r="30" fill="#ffb454"/></g></g>
+          <line x1="20" y1="150" x2="380" y2="150" stroke="currentColor" stroke-width="2" opacity=".6"/>
+          <g stroke="currentColor" opacity=".25"><line x1="60" y1="162" x2="340" y2="162"/><line x1="100" y1="174" x2="300" y2="174"/></g>
+        </svg>
+        <div class="big"><span id="score-number">0.0</span><small>/ 10</small></div>
+        <p class="band" id="score-band"></p>
+        <p class="sub" id="score-context"></p>
+        <button type="button" class="btn" id="reset-btn">Start again</button>
+        <footer>An informational reflection, not a clinical assessment.</footer>
+      </section>
+
+      <section class="step res" data-step="error">
+        <h1 id="error-label">Something went wrong</h1>
+        <p class="sub" id="error-copy"></p>
+        <button type="button" class="btn" id="error-retry-btn">Back to my answers</button>
+      </section>
+
+      <nav id="nav"><button type="button" class="btn ghost" id="back" hidden>← Back</button><button type="button" class="btn" id="next">Continue</button></nav>
+    </form>
+  </main>
+  <footer id="foot">Your answers are only used to calculate this reflection. If things feel hard, talking to someone you trust can help.</footer>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const API_BASE = "http://127.0.0.1:8000";
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+  const titles = ["About you", "Your phone", "Your days", "Stress"];
+  const themes = ["day", "day", "day", "night"];
+  const state = {}; // chip + stress values
+  let step = 0;
+
+  // crumbs
+  $("#crumbs").innerHTML = titles.map((t, i) => `<span data-i="${i}">${t}</span>`).join("");
+
+  // chips
+  $$(".chips").forEach(g => {
+    g.innerHTML = g.dataset.opts.split(",").map(o => `<button type="button" class="chip" aria-pressed="false" data-v="${o}">${o}</button>`).join("");
+  });
+  const st = $(".stress");
+  st.innerHTML = st.dataset.opts.split(",").map(o => { const [v, d] = o.split("|"); return `<button type="button" class="chip" aria-pressed="false" data-v="${v}">${v}<em>${d}</em></button>`; }).join("");
+  $$(".chips,.stress").forEach(g => g.addEventListener("click", e => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    $$(".chip", g).forEach(c => c.setAttribute("aria-pressed", c === b));
+    state[g.dataset.key] = b.dataset.v;
+    setErr(g.dataset.key, "");
+  }));
+
+  // sliders
+  $$("input[type=range]").forEach(r => {
+    const o = r.parentElement.querySelector("output");
+    const upd = () => { o.innerHTML = `${(+r.value).toFixed(r.step < 0.5 ? 2 : 1).replace(/\.?0+$/, "")}<small>hrs</small>`; };
+    r.addEventListener("input", upd); upd();
+  });
+
+  function setErr(key, msg) { const e = $(`[data-err="${key}"]`); if (e) e.textContent = msg; }
+
+  // validation per step
+  function validateStep(n) {
+    let ok = true; const bad = (k, m) => { setErr(k, m); ok = false; };
+    if (n === 0) {
+      const age = parseInt($("#age").value, 10);
+      if (Number.isNaN(age)) bad("age", "Enter your age."); else if (age < 10 || age > 100) bad("age", "Age must be between 10 and 100.");
+      if (!state.gender) bad("gender", "Choose one.");
+      if (!$("#country").value.trim()) bad("country", "Enter your country.");
+      if (!state.academic_level) bad("academic_level", "Choose one.");
+    }
+    if (n === 1) {
+      if (!state.most_used_platform) bad("most_used_platform", "Choose one.");
+      if (!state.purpose_of_use) bad("purpose_of_use", "Choose one.");
+      const u = parseInt($("#daily_unlocks").value, 10);
+      if (Number.isNaN(u)) bad("daily_unlocks", "Enter a number. A rough guess is fine."); else if (u < 0) bad("daily_unlocks", "Must be 0 or more.");
+    }
+    if (n === 3 && !state.stress_level) bad("stress_level", "Pick how stress has felt.");
+    return ok;
+  }
+
+  function payload() {
+    const n = id => parseFloat($("#" + id).value);
+    return {
+      age: parseInt($("#age").value, 10),
+      gender: state.gender, country: $("#country").value.trim(),
+      academic_level: state.academic_level,
+      most_used_platform: state.most_used_platform, purpose_of_use: state.purpose_of_use,
+      avg_daily_usage_hours: n("avg_daily_usage_hours"),
+      daily_unlocks: parseInt($("#daily_unlocks").value, 10),
+      study_hours: n("study_hours"), physical_activity_hours: n("physical_activity_hours"),
+      sleep_hours_per_night: n("sleep_hours_per_night"),
+      stress_level: state.stress_level,
+    };
+  }
+
+  function show(name) {
+    $$(".step").forEach(s => s.classList.toggle("on", s.dataset.step === String(name)));
+    const isStep = typeof name === "number";
+    $("#nav").hidden = !isStep; $("#progress").style.visibility = isStep ? "visible" : "hidden";
+    $("#foot").hidden = !isStep;
+    document.body.dataset.theme = isStep ? themes[name] : (name === "result" ? "night" : "day");
+    if (isStep) {
+      step = name;
+      const pct = (name / (titles.length - 1)) * 100;
+      $("#bar").style.width = pct + "%"; $("#sunmark").style.left = pct + "%";
+      $$("#crumbs span").forEach((c, i) => c.classList.toggle("on", i === name));
+      $("#back").hidden = name === 0;
+      $("#next").textContent = name === titles.length - 1 ? "Show my signal" : "Continue";
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  $("#next").addEventListener("click", () => {
+    if (!validateStep(step)) return;
+    step < titles.length - 1 ? show(step + 1) : submit();
+  });
+  $("#back").addEventListener("click", () => show(step - 1));
+  $("#predict-form").addEventListener("submit", e => { e.preventDefault(); $("#next").click(); });
+  $$("input").forEach(i => i.addEventListener("input", () => setErr(i.id, "")));
+
+  function band(s) {
+    if (s < 4) return ["Running low", "Your answers point to some strain right now. Small changes to sleep or screen time can go a long way."];
+    if (s < 7) return ["Steady, with room to recover", "Your rhythm looks fairly even. There's space to rest and reset."];
+    return ["Well supported", "Your habits suggest a resilient baseline. Keep doing what's working."];
+  }
+
+  function renderResult(score) {
+    const c = Math.max(0, Math.min(10, score));
+    const [b, ctx] = band(c);
+    $("#score-number").textContent = score.toFixed(2);
+    $("#score-band").textContent = b; $("#score-context").textContent = ctx;
+    show("result");
+    const sun = $("#sun"); sun.style.transform = "translateY(190px)";
+    // sun rises from below the horizon (score 0) to high in the sky (score 10)
+    requestAnimationFrame(() => requestAnimationFrame(() => { sun.style.transform = `translateY(${190 - c * 17.5}px)`; }));
+  }
+
+  function renderError(label, copy) { $("#error-label").textContent = label; $("#error-copy").textContent = copy; show("error"); }
+
+  function serverErrors(detail) {
+    if (!Array.isArray(detail)) return null;
+    const msgs = detail.map(d => `${Array.isArray(d.loc) ? d.loc[d.loc.length - 1] : "field"}: ${d.msg}`);
+    return msgs.join("; ");
+  }
+
+  async function submit() {
+    show("loading"); $("#nav").hidden = true;
+    try {
+      const res = await fetch(`${API_BASE}/predict`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload()) });
+      if (res.status === 422) {
+        const body = await res.json().catch(() => null);
+        return renderError("Some answers were rejected", (body && serverErrors(body.detail)) || "Please go back and review your answers.");
+      }
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        return renderError("The score couldn't be calculated", body && typeof body.detail === "string" ? body.detail : `The server responded with status ${res.status}. Try again in a moment.`);
+      }
+      const data = await res.json();
+      if (typeof data.predicted_mental_health_score !== "number") return renderError("Unexpected response", "The server replied, but the score was missing. Try again.");
+      renderResult(data.predicted_mental_health_score);
+    } catch (e) {
+      renderError("Can't reach the server", `Couldn't connect to ${API_BASE}. Check that the backend is running and that your connection is working.`);
+    }
+  }
+
+  $("#reset-btn").addEventListener("click", () => { $("#predict-form").reset(); Object.keys(state).forEach(k => delete state[k]); $$(".chip").forEach(c => c.setAttribute("aria-pressed", "false")); $$("input[type=range]").forEach(r => r.dispatchEvent(new Event("input"))); show(0); });
+  $("#error-retry-btn").addEventListener("click", () => show(3));
+
+  show(0);
+})();
+</script>
+</body>
+</html>

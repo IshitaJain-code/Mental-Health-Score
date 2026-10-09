@@ -1,13 +1,26 @@
 import joblib
-import pandas as pd 
+import pandas as pd
 from fastapi import FastAPI
-from pydantic import BaseModel , Field
+from pydantic import BaseModel, Field
 from typing import Literal
+from fastapi.middleware.cors import CORSMiddleware
 
-model = joblib.load('Mental_Health_Model.pkl')
+
+model = joblib.load ('Mental_Health_Model.pkl')
 top_countries = ['Other','India','USA','Canada','Australia','UK','Germany','Mexico','Turkey','France']
 
-app = FastAPI()
+app = FastAPI(
+    title='Mental Health Score Prediction API',
+    description='Predicts a mental health score using the included trained model.',
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 class StudentData(BaseModel):
     age                     : int = Field(..., ge=10, le=100)
@@ -32,7 +45,12 @@ class PredictionResponse(BaseModel):
 
 @app.get('/')
 def home():
-    return {'message': 'Welcome to the Mental Health Score Prediction API'}
+    return {
+        'message': 'Welcome to the Mental Health Score Prediction API',
+        'application_url': '/app',
+        'documentation_url': '/docs',
+    }
+
 
 
 @app.post('/predict', response_model=PredictionResponse)
@@ -44,8 +62,8 @@ def predict(data : StudentData):
     input_row=  pd.DataFrame([{
         'Age'                       : data.age,
         'Gender'                    : data.gender,
-        'Country'                   : data.country,
         'Academic_Level'            : data.academic_level,
+        'Most_Used_Platform'        : data.most_used_platform,
         'Purpose_Of_Use'            :data.purpose_of_use,
         'Avg_Daily_Usage_Hours'     :data.avg_daily_usage_hours,
         'Daily_Unlocks'             :data.daily_unlocks,
